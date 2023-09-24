@@ -10,6 +10,11 @@ variable "aws_secret_key"{
   type = string
 }
 
+variable "private_key_path"{
+  type = string
+}
+
+
 provider "aws" {
   region = var.aws_region
   access_key = var.aws_access_key
@@ -41,9 +46,21 @@ resource "aws_glue_crawler" "glue-crawler"{
 resource "aws_security_group" "ec2-ssh"{
   name_prefix = "ec2-ssh-"
   ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
     from_port = 22
     to_port = 22
     protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+    egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
@@ -56,5 +73,19 @@ resource  "aws_instance" "ec2"{
   tags = {
     name = "backend-ec2"
     power-rankings-hackathon = 2023
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo yum update -y",
+      "sudo yum install -y git",
+      "git clone https://github.com/rhy2781/RitoRank.git"
+    ]
+  }
+  connection {
+    type = "ssh"
+    user = "ec2-user"
+    private_key = file(var.private_key_path)
+    host = aws_instance.ec2.public_ip
   }
 }
