@@ -79,6 +79,9 @@ resource  "aws_instance" "ec2"{
     inline = [
       "sudo yum update -y",
       "sudo yum install -y git",
+      "sudo yum install python3 -y",
+      "sudo yum install pip -y",
+      "pip install boto3",
       "git clone https://github.com/rhy2781/RitoRank.git"
     ]
   }
