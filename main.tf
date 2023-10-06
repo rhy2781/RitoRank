@@ -82,9 +82,11 @@ resource  "aws_instance" "ec2"{
       "sudo yum install python3 -y",
       "sudo yum install pip -y",
       "pip install boto3",
-      "git clone https://github.com/rhy2781/RitoRank.git"
+      "git clone https://github.com/rhy2781/RitoRank.git",
     ]
+
   }
+
   connection {
     type = "ssh"
     user = "ec2-user"
