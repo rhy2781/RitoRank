@@ -2,7 +2,7 @@ import boto3;
 import os;
 
 CLIENT = boto3.client("athena")
-RESULT_OUTPUT_LOCATION = os.environ.get("S3")
+RESULT_OUTPUT_LOCATION = "s3://" + os.environ.get("S3")
 
 # Generate table for Game Data
 def generateGamesTable():
@@ -61,14 +61,14 @@ def generateGamesTable():
             'compressionType'='bzip2',
             'typeOfData'='file')
         """,
-        ResultConfiguration={"OutputLocation": RESULT_OUTPUT_LOCATION + "/games"}
+        ResultConfiguration={"OutputLocation": RESULT_OUTPUT_LOCATION}
     )
-    return response
+    print(response)
 
 # Generate table to record league formats
 def generateLeaguesTable():
     response = CLIENT.start_query_execution(
-        queryString="""
+        QueryString="""
             CREATE EXTERNAL TABLE lol.`leagues`(
             `id` string, 
             `name` string, 
@@ -96,14 +96,14 @@ def generateLeaguesTable():
             'compressionType'='bzip2', 
             'typeOfData'='file')
         """,
-        ResultConfiguration={"OutputLocation": RESULT_OUTPUT_LOCATION + "/leagues"}
+        ResultConfiguration={"OutputLocation": RESULT_OUTPUT_LOCATION}
     )
-    return response
+    print(response)
 
 # Generate tables for mapping
 def generateTeamMappingsTable():
     response = CLIENT.start_query_execution(
-        queryString="""
+        QueryString="""
             CREATE EXTERNAL TABLE lol.`mapping_data`(
             `esportsgameid` string, 
             `platformgameid` string, 
@@ -124,14 +124,14 @@ def generateTeamMappingsTable():
             'compressionType'='bzip2', 
             'typeOfData'='file')
         """,
-        ResultingConfiguration={"OutputLocation": RESULT_OUTPUT_LOCATION + "/mapping-data"}
+        ResultConfiguration={"OutputLocation": RESULT_OUTPUT_LOCATION}
     )
-    return response
+    print(response)
 
 # Generate table for player format
 def generatePlayersTable():
-    result = CLIENT.start_query_execution(
-        queryString="""
+    response = CLIENT.start_query_execution(
+        QueryString="""
             CREATE EXTERNAL TABLE lol.`players`(
             `player_id` string, 
             `handle` string, 
@@ -153,14 +153,14 @@ def generatePlayersTable():
             'compressionType'='bzip2', 
             'typeOfData'='file')
         """,
-        ResultConfiguration={"OutputLocation": RESULT_OUTPUT_LOCATION + "/players"}
+        ResultConfiguration={"OutputLocation": RESULT_OUTPUT_LOCATION}
     )
-    return result
+    print(response)
 
 # Generate table for team format
 def generateTeamsTable():
-    result = CLIENT.start_query_execution(
-        queryString="""
+    response = CLIENT.start_query_execution(
+        QueryString="""
             CREATE EXTERNAL TABLE lol.`teams`(
             `team_id` string, 
             `name` string, 
@@ -181,14 +181,14 @@ def generateTeamsTable():
             'compressionType'='bzip2', 
             'typeOfData'='file')
         """,
-        ResultConfiguration={"OutputLocation": RESULT_OUTPUT_LOCATION + "/teams"}
+        ResultConfiguration={"OutputLocation": RESULT_OUTPUT_LOCATION}
     )
-    return result
+    print(response)
 
 # Generate Table for Tournament format
 def generateTournamentsTable():
-    result = CLIENT.start_query_execution(
-        queryString="""
+    response = CLIENT.start_query_execution(
+        QueryString="""
             CREATE EXTERNAL TABLE lol.`tournaments`(
             `id` string, 
             `leagueid` string, 
@@ -213,9 +213,15 @@ def generateTournamentsTable():
             'compressionType'='bzip2', 
             'typeOfData'='file')
         """,
-        ResultConfiguration={"OutputLocation": RESULT_OUTPUT_LOCATION + "/tournaments"}
+        ResultConfiguration={"OutputLocation": RESULT_OUTPUT_LOCATION}
     )
-    return result
+    print(response)
 
-def __init__():
-    generateGamesTable()
+print("Generating Tables")
+generateGamesTable()
+generateLeaguesTable()
+generateTeamMappingsTable()
+generatePlayersTable()
+generateTeamsTable()
+generateTournamentsTable()
+print("Tables Generated")
