@@ -82,6 +82,7 @@ resource  "aws_instance" "ec2"{
       "sudo yum install python3 -y",
       "sudo yum install pip -y",
       "pip install boto3",
+      "pip install sagemaker",
       "git clone https://github.com/rhy2781/RitoRank.git",
     ]
 
