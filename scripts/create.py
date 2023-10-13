@@ -4,6 +4,13 @@ import os;
 CLIENT = boto3.client("athena")
 RESULT_OUTPUT_LOCATION = "s3://" + os.environ.get("S3")
 
+def createDatabase():
+    response = CLIENT.start_query_execution(
+        QueryString="CREATE DATABASE lol",
+        ResultConfiguration={"OutputLocation": RESULT_OUTPUT_LOCATION}
+    )
+    print(response)
+
 # Generate table for Game Data
 def generateGamesTable():
     response = CLIENT.start_query_execution(
@@ -218,6 +225,7 @@ def generateTournamentsTable():
     print(response)
 
 print("Generating Tables")
+createDatabase()
 generateGamesTable()
 generateLeaguesTable()
 generateTeamMappingsTable()
