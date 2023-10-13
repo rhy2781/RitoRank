@@ -1,1 +1,8 @@
 credentials.tfvars
+.terraform.lock.hcl
+.terraform.tfstate.lock 2.info
+.terraform.tfstate.lock 3.info
+.terraform.tfstate.lock 4.info
+.terraform.tfstate.lock 5.info
+.terraform.tfstate.lock 6.info
+.terraform/
