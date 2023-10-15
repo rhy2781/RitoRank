@@ -84,6 +84,9 @@ resource "aws_db_instance" "RDS"{
   parameter_group_name = "default.mysql5.7"
   skip_final_snapshot  = true
   publicly_accessible = true
+
+  vpc_security_group_ids = [aws_security_group.rds_security_group.id]
+
   tags = {
     power-rankings-hackathon = 2023
   }
@@ -98,6 +101,9 @@ resource "aws_security_group" "rds_security_group" {
   name        = "rds-security-group"
   description = "Security group for RDS access"
   vpc_id      = aws_default_vpc.default.id # Replace with the ID or resource reference of your VPC
+    tags = {
+    Name = "ingress attemp"
+  }
 }
 
 resource "aws_security_group_rule" "rds_ingress" {
@@ -109,6 +115,14 @@ resource "aws_security_group_rule" "rds_ingress" {
   security_group_id = aws_security_group.rds_security_group.id
 }
 
+resource "aws_security_group_rule" "rds_egress" {
+  type        = "egress"
+  from_port   = 0
+  to_port     = 65535
+  protocol    = "tcp"
+  security_group_id = aws_security_group.rds_security_group.id
+  source_security_group_id = aws_security_group.rds_security_group.id
+}
 
 resource  "aws_instance" "ec2"{
   ami = "ami-03a6eaae9938c858c"
