@@ -14,7 +14,6 @@ variable "private_key_path"{
   type = string
 }
 
-
 provider "aws" {
   region = var.aws_region
   access_key = var.aws_access_key
@@ -31,6 +30,9 @@ resource "aws_s3_bucket" "athena-output"{
 
 resource "aws_glue_catalog_database" "glue-db"{
   name = "rito-glue-database"
+  tags = {
+    power-rankings-hackathon = 2023
+  }
 }
 
 resource "aws_glue_crawler" "glue-crawler"{
@@ -40,6 +42,9 @@ resource "aws_glue_crawler" "glue-crawler"{
   
   s3_target{
     path = "s3://power-rankings-dataset-gprhack/athena-ready/"
+  }
+  tags = {
+    power-rankings-hackathon = 2023
   }
 }
 
@@ -63,7 +68,47 @@ resource "aws_security_group" "ec2-ssh"{
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  tags = {
+    power-rankings-hackathon = 2023
+  }
 }
+
+resource "aws_db_instance" "RDS"{
+  allocated_storage    = 10
+  db_name              = "mydb"
+  engine               = "mysql"
+  engine_version       = "5.7"
+  instance_class       = "db.t3.micro"
+  username             = "foo"
+  password             = "foobarbaz"
+  parameter_group_name = "default.mysql5.7"
+  skip_final_snapshot  = true
+  publicly_accessible = true
+  tags = {
+    power-rankings-hackathon = 2023
+  }
+}
+resource "aws_default_vpc" "default" {
+  tags = {
+    Name = "Default VPC"
+  }
+}
+
+resource "aws_security_group" "rds_security_group" {
+  name        = "rds-security-group"
+  description = "Security group for RDS access"
+  vpc_id      = aws_default_vpc.default.id # Replace with the ID or resource reference of your VPC
+}
+
+resource "aws_security_group_rule" "rds_ingress" {
+  type        = "ingress"
+  from_port   = 3306
+  to_port     = 3306
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]  # Allow traffic from any IP
+  security_group_id = aws_security_group.rds_security_group.id
+}
+
 
 resource  "aws_instance" "ec2"{
   ami = "ami-03a6eaae9938c858c"
@@ -71,7 +116,7 @@ resource  "aws_instance" "ec2"{
   key_name = "my-AWS-key"
   vpc_security_group_ids = [aws_security_group.ec2-ssh.id]
   tags = {
-    name = "backend-ec2"
+    Name = "backend-ec2"
     power-rankings-hackathon = 2023
   }
 
@@ -85,7 +130,6 @@ resource  "aws_instance" "ec2"{
       "pip install sagemaker",
       "git clone https://github.com/rhy2781/RitoRank.git",
     ]
-
   }
 
   connection {
